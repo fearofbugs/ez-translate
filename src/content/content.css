@@ -1,9 +1,9 @@
-/* content.css - 用于划词翻译的图标和浮窗样式 */
+/* content.css - Styles for the text-selection translate icon and popover */
 
 #llm-translate-icon {
-    position: absolute; /* 使用 absolute 以便跟随页面滚动 */
-    background-color: #ffffff; /* 背景改为白色 */
-    border: 1px solid #e0e0e0; /* 添加细边框 */
+    position: absolute; /* Use absolute so the icon follows page scrolling */
+    background-color: #ffffff; /* White background */
+    border: 1px solid #e0e0e0; /* Thin border */
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -12,7 +12,7 @@
     align-items: center;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    z-index: 2147483647; /* 尝试使用最高层级 */
+    z-index: 2147483647; /* Try to use the maximum z-index */
     transition: transform 0.1s ease-in-out;
 }
 
@@ -32,7 +32,7 @@
     font-size: 14px;
     line-height: 1.6;
     color: #333;
-    display: none; /* 默认隐藏 */
+    display: none; /* Hidden by default */
 }
 
 /* Screenshot selection overlay */
@@ -47,7 +47,7 @@
     cursor: pointer;
 }
 
-/* 右键菜单翻译弹窗样式 */
+/* Context-menu translation popup styles */
 #llm-translate-popover.context-menu-popup {
     position: fixed !important;
     top: 50% !important;
@@ -59,7 +59,7 @@
     padding: 0;
 }
 
-/* 弹窗头部 */
+/* Popup header */
 .llm-translate-header {
     background: #f5f5f5;
     padding: 12px 16px;
@@ -97,7 +97,7 @@
     color: #333;
 }
 
-/* 弹窗内容 */
+/* Popup content */
 .llm-translate-content {
     padding: 16px;
 }
@@ -121,11 +121,11 @@
     line-height: 1.5;
     word-wrap: break-word;
     white-space: pre-wrap;
-    user-select: text; /* 确保文本可以选择 */
+    user-select: text; /* Ensure the text can be selected */
     cursor: text;
 }
 
-/* 翻译结果头部样式 */
+/* Translation result header styles */
 .llm-translate-result-header {
     display: flex;
     justify-content: space-between;
@@ -133,7 +133,7 @@
     margin-bottom: 4px;
 }
 
-/* 复制按钮样式 */
+/* Copy button styles */
 .llm-translate-copy-btn {
     background: #f5f5f5;
     border: 1px solid #ddd;
@@ -157,12 +157,12 @@
     transform: translateY(1px);
 }
 
-/* 确保弹窗内的文本选择不会触发关闭 */
+/* Ensure text selection inside the popup doesn't trigger closing */
 #llm-translate-popover.context-menu-popup * {
     pointer-events: auto;
 }
 
-/* 增强文本选择体验 */
+/* Enhanced text selection experience */
 .llm-translate-text::selection {
     background: #b3e5fc;
     color: #0277bd;

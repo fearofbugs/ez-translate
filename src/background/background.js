@@ -1,13 +1,13 @@
-// background.js - 支持多提供商的后台服务
+// background.js - Multi-provider background service worker
 
-// --- 初始化与安装 ---
+// --- Initialization & installation ---
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("LLM-Translate 插件已安装或更新。");
+    console.log("LLM-Translate extension installed or updated.");
     
-    // 创建右键菜单
+    // Create the context menu
     createContextMenus();
     
-    // 设置初始默认值，仅当它们不存在时
+    // Set initial default values only when they don't exist
     chrome.storage.local.get(null, (items) => {
         const defaults = {
             activeProvider: 'gemini',
@@ -17,7 +17,7 @@ chrome.runtime.onInstalled.addListener(() => {
             siliconflowSelectedModel: '',
             ollamaUrl: 'http://localhost:11434',
             ollamaSelectedModel: '',
-            // 使用语言键而不是本地化名称，确保与设置/弹窗保持一致
+            // Use language keys instead of localized names to stay consistent with settings/popup
             targetLanguage: 'langSimplifiedChinese',
             secondTargetLanguage: 'langEnglish'
         };
@@ -29,32 +29,32 @@ chrome.runtime.onInstalled.addListener(() => {
         }
         if (Object.keys(itemsToSet).length > 0) {
             chrome.storage.local.set(itemsToSet);
-            console.log("已设置初始默认值:", itemsToSet);
+            console.log("Set initial default values:", itemsToSet);
         }
     });
 });
 
-// --- 创建右键菜单 ---
+// --- Context menu creation ---
 function createContextMenus() {
-    // 清除现有的菜单项
+    // Remove existing menu items
     chrome.contextMenus.removeAll(() => {
-        // 获取当前语言设置
+        // Get the current language settings
         chrome.storage.local.get(['targetLanguage', 'secondTargetLanguage'], (result) => {
             const primaryLang = result.targetLanguage || 'langSimplifiedChinese';
             const secondaryLang = result.secondTargetLanguage || 'langEnglish';
             
-            // 获取语言名称
+            // Get the language names
             const primaryLangName = normalizeLanguageToEnglishName(primaryLang);
             const secondaryLangName = normalizeLanguageToEnglishName(secondaryLang);
             
-            // 创建主菜单项
+            // Create the parent menu item
             chrome.contextMenus.create({
                 id: 'translate-selection',
                 title: chrome.i18n.getMessage('contextMenuTranslate'),
                 contexts: ['selection']
             });
             
-            // 创建子菜单项 - 翻译到主要目标语言
+            // Create the submenu item - translate to primary target language
             chrome.contextMenus.create({
                 id: 'translate-to-primary',
                 parentId: 'translate-selection',
@@ -62,7 +62,7 @@ function createContextMenus() {
                 contexts: ['selection']
             });
             
-            // 创建子菜单项 - 翻译到次要目标语言
+            // Create the submenu item - translate to secondary target language
             chrome.contextMenus.create({
                 id: 'translate-to-secondary',
                 parentId: 'translate-selection',
@@ -70,7 +70,7 @@ function createContextMenus() {
                 contexts: ['selection']
             });
             
-            // 创建分隔线
+            // Create a separator
             chrome.contextMenus.create({
                 id: 'separator1',
                 parentId: 'translate-selection',
@@ -78,7 +78,7 @@ function createContextMenus() {
                 contexts: ['selection']
             });
             
-            // 创建设置菜单项
+            // Create the settings menu item
             chrome.contextMenus.create({
                 id: 'open-settings',
                 parentId: 'translate-selection',
@@ -89,16 +89,16 @@ function createContextMenus() {
     });
 }
 
-// --- 快捷键监听 ---
+// --- Keyboard shortcut listener ---
 chrome.commands.onCommand.addListener((command) => {
     console.log('[LLM-Translate] Command received:', command);
     
     if (command === 'capture-selected-area') {
-        // 获取当前活动标签页
+        // Get the current active tab
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             if (tabs[0]) {
                 console.log('[LLM-Translate] Sending startScreenshotSelection to tab:', tabs[0].id);
-                // 向当前活动标签页发送开始截图选择的消息
+                // Send a start-screenshot-selection message to the active tab
                 chrome.tabs.sendMessage(tabs[0].id, {
                     type: 'startScreenshotSelection'
                 }).catch((error) => {
@@ -109,11 +109,11 @@ chrome.commands.onCommand.addListener((command) => {
     }
 });
 
-// --- 消息监听 ---
+// --- Message listener ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'translate') {
         handleTranslation(request.text, request.targetLanguage, request.secondTargetLanguage, sendResponse);
-        return true; // 异步响应
+        return true; // Respond asynchronously
     } else if (request.type === 'captureAndTranslateImage') {
         console.log('[LLM-Translate] captureAndTranslateImage received', request.rect);
         handleCaptureAndTranslateImage(request.rect, sender, sendResponse);
@@ -121,16 +121,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-// --- 监听设置变化，更新右键菜单 ---
+// --- Listen for setting changes and update the context menu ---
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && 
         (changes.targetLanguage || changes.secondTargetLanguage)) {
-        // 当目标语言设置改变时，重新创建右键菜单
+        // Recreate the context menu when target language settings change
         createContextMenus();
     }
 });
 
-// --- 右键菜单点击处理 ---
+// --- Context menu click handler ---
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'translate-to-primary' || info.menuItemId === 'translate-to-secondary') {
         handleContextMenuTranslation(info, tab);
@@ -139,7 +139,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-// --- 处理右键菜单翻译 ---
+// --- Handle context-menu translation ---
 async function handleContextMenuTranslation(info, tab) {
     const selectedText = info.selectionText;
     if (!selectedText || selectedText.trim().length === 0) {
@@ -147,12 +147,12 @@ async function handleContextMenuTranslation(info, tab) {
     }
     
     try {
-        // 获取当前的语言设置
+        // Get the current language settings
         const { targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['targetLanguage', 'secondTargetLanguage']);
         const primaryTargetLanguageKey = targetLanguage || 'langSimplifiedChinese';
         const secondaryTargetLanguageKey = secondTargetLanguage || 'langEnglish';
         
-        // 确定要使用的目标语言
+        // Determine which target language to use
         let actualTargetLanguage, actualSecondTargetLanguage;
         if (info.menuItemId === 'translate-to-primary') {
             actualTargetLanguage = primaryTargetLanguageKey;
@@ -162,11 +162,11 @@ async function handleContextMenuTranslation(info, tab) {
             actualSecondTargetLanguage = primaryTargetLanguageKey;
         }
         
-        // 标准化语言名称
+        // Normalize the language names
         const primaryTargetLanguageName = normalizeLanguageToEnglishName(actualTargetLanguage);
         const secondaryTargetLanguageName = normalizeLanguageToEnglishName(actualSecondTargetLanguage);
         
-        // 发送翻译请求到 content script
+        // Send the translation request to the content script
         chrome.tabs.sendMessage(tab.id, {
             type: 'contextMenuTranslate',
             text: selectedText,
@@ -175,13 +175,13 @@ async function handleContextMenuTranslation(info, tab) {
         });
         
     } catch (error) {
-        console.error('右键菜单翻译失败:', error);
+        console.error('Context-menu translation failed:', error);
     }
 }
 
-// --- 语言名称标准化函数 ---
+// --- Language name normalization function ---
 function normalizeLanguageToEnglishName(langValue) {
-    // 语言键到英文名称的映射
+    // Map of language keys to English names
     const langKeyToEnName = {
         'langEnglish': 'English',
         'langSimplifiedChinese': 'Simplified Chinese',
@@ -304,7 +304,7 @@ function normalizeLanguageToEnglishName(langValue) {
         'langPapiamento': 'Papiamento'
     };
     
-    // 常见本地化名称到英文名称的映射
+    // Map of common localized names to English names
     const localizedToEnNameMap = {
         '中文': 'Simplified Chinese',
         '简体中文': 'Simplified Chinese',
@@ -550,16 +550,16 @@ function normalizeLanguageToEnglishName(langValue) {
     } else if (localizedToEnNameMap[langValue]) {
         return localizedToEnNameMap[langValue];
     } else {
-        // 如果都不是，直接返回原值（可能是直接的英文名称）
+        // If none match, return the original value (it may already be an English name)
         return langValue;
     }
 }
 
-// --- 核心翻译处理 ---
+// --- Core translation handling ---
 async function handleTranslation(text, targetLanguage, secondTargetLanguage, sendResponse) {
     try {
         const { activeProvider } = await chrome.storage.local.get('activeProvider');
-        const provider = activeProvider || 'gemini'; // 默认为 gemini
+        const provider = activeProvider || 'gemini'; // Default to gemini
         
         // Detect source language and determine actual target language
         const actualTargetLanguage = await determineTargetLanguage(text, targetLanguage, secondTargetLanguage);
@@ -578,13 +578,13 @@ async function handleTranslation(text, targetLanguage, secondTargetLanguage, sen
 
             
             if (!ollamaUrl) {
-                sendResponse({ error: `Ollama 服务器地址未设置。请在设置页面配置 Ollama URL。` });
+                sendResponse({ error: `Ollama server URL is not set. Please configure the Ollama URL on the settings page.` });
                 chrome.runtime.openOptionsPage();
                 return;
             }
             
             if (!modelName) {
-                sendResponse({ error: `Ollama 模型未选择。请在设置页面选择一个模型。` });
+                sendResponse({ error: `No Ollama model selected. Please choose a model on the settings page.` });
                 chrome.runtime.openOptionsPage();
                 return;
             }
@@ -597,7 +597,7 @@ async function handleTranslation(text, targetLanguage, secondTargetLanguage, sen
             modelName = config[modelKey];
 
             if (!apiKey || !modelName) {
-                sendResponse({ error: `当前提供商 (${provider}) 的 API 密钥或模型未设置。` });
+                sendResponse({ error: `API key or model for the current provider (${provider}) is not set.` });
                 chrome.runtime.openOptionsPage();
                 return;
             }
@@ -615,17 +615,17 @@ async function handleTranslation(text, targetLanguage, secondTargetLanguage, sen
         } else if (provider === 'ollama') {
             translation = await callOllamaAPI(text, ollamaUrl, modelName, actualTargetLanguage, secondTargetLanguage);
         } else {
-            throw new Error(`未知的模型提供商: ${provider}`);
+            throw new Error(`Unknown model provider: ${provider}`);
         }
         
         sendResponse({ translation });
 
     } catch (error) {
-        sendResponse({ error: `翻译失败: ${error.message}` });
+        sendResponse({ error: `Translation failed: ${error.message}` });
     }
 }
 
-// --- 语言检测与目标语言确定 ---
+// --- Language detection & target language determination ---
 async function determineTargetLanguage(text, targetLanguage, secondTargetLanguage) {
     return new Promise((resolve) => {
         chrome.i18n.detectLanguage(text, (result) => {
@@ -689,7 +689,7 @@ function mapLanguageCodeToName(languageCode) {
     return languageMap[languageCode] || 'English';
 }
 
-// --- 截图并翻译图片内文字 ---
+// --- Screenshot & translate text in images ---
 async function handleCaptureAndTranslateImage(rect, sender, sendResponse) {
     try {
         // Capture visible tab
@@ -714,7 +714,7 @@ async function handleCaptureAndTranslateImage(rect, sender, sendResponse) {
         } else if (provider === 'ollama') {
             translation = await visionTranslateOllama(croppedDataUrl);
         } else {
-            throw new Error(`未知的模型提供商: ${provider}`);
+            throw new Error(`Unknown model provider: ${provider}`);
         }
 
         // Send to content script to show result popover with copy
@@ -754,7 +754,7 @@ async function cropImageDataUrl(dataUrl, rect) {
 async function visionTranslateGemini(imageDataUrl) {
     const { geminiApiKey, geminiSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['geminiApiKey', 'geminiSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = geminiApiKey; const modelName = geminiSelectedModel;
-    if (!apiKey || !modelName) throw new Error('Gemini API 或模型未配置');
+    if (!apiKey || !modelName) throw new Error('Gemini API or model is not configured');
     const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
     const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
     const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
@@ -762,7 +762,7 @@ async function visionTranslateGemini(imageDataUrl) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
     const parts = [{ text: prompt }, { inline_data: { mime_type: 'image/png', data: imageDataUrl.split(',')[1] } }];
     const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) });
-    if (!resp.ok) throw new Error('Gemini Vision 请求失败');
+    if (!resp.ok) throw new Error('Gemini Vision request failed');
     const data = await resp.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 }
@@ -770,7 +770,7 @@ async function visionTranslateGemini(imageDataUrl) {
 async function visionTranslateOpenAICompatible(imageDataUrl) {
     const { siliconflowApiKey, siliconflowSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['siliconflowApiKey', 'siliconflowSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = siliconflowApiKey; const modelName = siliconflowSelectedModel;
-    if (!apiKey || !modelName) throw new Error('SiliconFlow API 或模型未配置');
+    if (!apiKey || !modelName) throw new Error('SiliconFlow API or model is not configured');
     const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
     const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
     const userPrompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
@@ -783,7 +783,7 @@ async function visionTranslateOpenAICompatible(imageDataUrl) {
         ]}
     ];
     const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
-    if (!resp.ok) throw new Error('SiliconFlow Vision 请求失败');
+    if (!resp.ok) throw new Error('SiliconFlow Vision request failed');
     const data = await resp.json();
     return data.choices?.[0]?.message?.content?.trim() || '';
 }
@@ -791,7 +791,7 @@ async function visionTranslateOpenAICompatible(imageDataUrl) {
 async function visionTranslateOpenRouter(imageDataUrl) {
     const { openrouterApiKey, openrouterSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['openrouterApiKey', 'openrouterSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = openrouterApiKey; const modelName = openrouterSelectedModel;
-    if (!apiKey || !modelName) throw new Error('OpenRouter API 或模型未配置');
+    if (!apiKey || !modelName) throw new Error('OpenRouter API or model is not configured');
     const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
     const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
     const userPrompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
@@ -804,14 +804,14 @@ async function visionTranslateOpenRouter(imageDataUrl) {
         ]}
     ];
     const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://github.com/licon/llm-translate', 'X-Title': 'LLM Translate Extension' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
-    if (!resp.ok) throw new Error('OpenRouter Vision 请求失败');
+    if (!resp.ok) throw new Error('OpenRouter Vision request failed');
     const data = await resp.json();
     return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
 async function visionTranslateOrcaRouter(imageDataUrl) {
     const { orcarouterApiKey, orcarouterSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['orcarouterApiKey', 'orcarouterSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
-    if (!orcarouterApiKey || !orcarouterSelectedModel) throw new Error('OrcaRouter API 或模型未配置');
+    if (!orcarouterApiKey || !orcarouterSelectedModel) throw new Error('OrcaRouter API or model is not configured');
     const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
     const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
     const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
@@ -826,13 +826,13 @@ async function visionTranslateOrcaRouter(imageDataUrl) {
 async function visionTranslateOllama(imageDataUrl) {
     const { ollamaUrl, ollamaSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['ollamaUrl', 'ollamaSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const url = ollamaUrl; const modelName = ollamaSelectedModel;
-    if (!url || !modelName) throw new Error('Ollama URL 或模型未配置');
+    if (!url || !modelName) throw new Error('Ollama URL or model is not configured');
     const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
     const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
     const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
     // Note: Many Ollama models don't support vision; this is a best-effort text prompt
     const resp = await fetch(`${url}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, prompt: `${prompt}\n[Image as data URL]\n${imageDataUrl}`, stream: false }) });
-    if (!resp.ok) throw new Error('Ollama Vision 请求失败');
+    if (!resp.ok) throw new Error('Ollama Vision request failed');
     const data = await resp.json();
     return data.response?.trim() || '';
 }
@@ -842,10 +842,10 @@ function mapLangKeyToEnName(key) {
     return map[key] || 'English';
 }
 
-// --- API 调用实现 ---
+// --- API call implementations ---
 
 /**
- * 调用 Google Gemini API
+ * Call the Google Gemini API
  */
 async function callGeminiAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -861,14 +861,14 @@ async function callGeminiAPI(text, apiKey, modelName, targetLanguage, secondTarg
 
     if (!response.ok) {
         const errorBody = await response.json();
-        throw new Error(errorBody.error.message || `API 请求失败`);
+        throw new Error(errorBody.error.message || `API request failed`);
     }
     const data = await response.json();
     return data.candidates[0].content.parts[0].text.trim();
 }
 
 /**
- * 调用 Silicon Flow API (兼容 OpenAI 格式)
+ * Call the Silicon Flow API (OpenAI-compatible format)
  */
 async function callSiliconFlowAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = 'https://api.siliconflow.cn/v1/chat/completions';
@@ -892,14 +892,14 @@ async function callSiliconFlowAPI(text, apiKey, modelName, targetLanguage, secon
 
     if (!response.ok) {
         const errorBody = await response.json();
-        throw new Error(errorBody.error.message || `API 请求失败`);
+        throw new Error(errorBody.error.message || `API request failed`);
     }
     const data = await response.json();
     return data.choices[0].message.content.trim();
 }
 
 /**
- * 调用 OpenRouter API
+ * Call the OpenRouter API
  */
 async function callOpenRouterAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
@@ -925,7 +925,7 @@ async function callOpenRouterAPI(text, apiKey, modelName, targetLanguage, second
 
     if (!response.ok) {
         const errorBody = await response.json();
-        throw new Error(errorBody.error?.message || `API 请求失败`);
+        throw new Error(errorBody.error?.message || `API request failed`);
     }
     const data = await response.json();
     return data.choices[0].message.content.trim();
@@ -949,13 +949,13 @@ async function callOrcaRouterChat(apiKey, modelName, messages) {
     const data = await response.json();
     const translation = data.choices?.[0]?.message?.content;
     if (typeof translation !== 'string' || !translation.trim()) {
-        throw new Error('OrcaRouter 返回的译文为空');
+        throw new Error('OrcaRouter returned an empty translation');
     }
     return translation.trim();
 }
 
 /**
- * 调用 Ollama API
+ * Call the Ollama API
  */
 async function callOllamaAPI(text, ollamaUrl, modelName, targetLanguage, secondTargetLanguage) {
     const url = `${ollamaUrl}/api/generate`;
@@ -975,7 +975,7 @@ async function callOllamaAPI(text, ollamaUrl, modelName, targetLanguage, secondT
     
     if (!response.ok) {
         if (response.status === 403) {
-            throw new Error('Ollama 服务器拒绝请求。请设置环境变量 OLLAMA_ORIGINS="*" 并重启 Ollama 服务。');
+            throw new Error('Ollama server rejected the request. Please set the OLLAMA_ORIGINS="*" environment variable and restart the Ollama service.');
         }
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         try {
@@ -987,7 +987,7 @@ async function callOllamaAPI(text, ollamaUrl, modelName, targetLanguage, secondT
                 errorMessage = errorBody || errorMessage;
             }
         } catch (textError) {
-            // 忽略解析错误，使用默认错误消息
+            // Ignore parsing errors and use the default error message
         }
         throw new Error(errorMessage);
     }
@@ -995,16 +995,16 @@ async function callOllamaAPI(text, ollamaUrl, modelName, targetLanguage, secondT
     const responseText = await response.text();
     
     if (!responseText.trim()) {
-        throw new Error('Ollama 返回了空响应，请检查模型是否正确加载');
+        throw new Error('Ollama returned an empty response. Please check that the model is loaded correctly');
     }
     
     try {
         const data = JSON.parse(responseText);
         if (!data.response) {
-            throw new Error('Ollama 响应格式异常，缺少 response 字段');
+            throw new Error('Ollama response format is invalid: missing "response" field');
         }
         return data.response.trim();
     } catch (jsonError) {
-        throw new Error(`Ollama 响应解析失败: ${jsonError.message}`);
+        throw new Error(`Failed to parse Ollama response: ${jsonError.message}`);
     }
 }

@@ -1,9 +1,9 @@
-// content.js - 负责划词翻译的 UI 和交互 (v2 - 修复版)
+// content.js - Handles the UI and interactions for text-selection translation (v2 - fixed)
 
-// --- 全局变量 ---
+// --- Global variables ---
 let translateIcon = null;
 let resultPopover = null;
-let isEnabled = true; // 默认启用
+let isEnabled = true; // Enabled by default
 let disableInEditable = false;
 let translateOnSelection = false;
 let requireCtrlOnSelection = false;
@@ -12,27 +12,27 @@ let editableSelectionOrigin = null;
 let pendingSelection = null;
 let ctrlPressCandidate = false;
 
-// --- 初始化和设置监听 ---
-// 首次加载时获取设置
+// --- Initialization & settings listeners ---
+// Fetch settings on first load
 chrome.storage.local.get([
     'isSelectionTranslationEnabled',
     'disableTranslationInEditable',
     'translateOnSelection',
     'requireCtrlOnSelection'
 ], (result) => {
-    // 如果未设置，则默认为 true
+    // Default to true if not set
     isEnabled = result.isSelectionTranslationEnabled !== false;
     disableInEditable = result.disableTranslationInEditable === true;
     translateOnSelection = result.translateOnSelection === true;
     requireCtrlOnSelection = result.requireCtrlOnSelection === true;
 });
 
-// 监听设置变化
+// Listen for setting changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace !== 'local') return;
     if (changes.isSelectionTranslationEnabled) {
         isEnabled = changes.isSelectionTranslationEnabled.newValue;
-        // 如果禁用了，立即移除现有UI
+        // If disabled, remove the existing UI immediately
         if (!isEnabled) {
             removeTranslationUI();
         }
@@ -51,9 +51,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 
-// --- 事件监听 ---
+// --- Event listeners ---
 
-// 监听来自 background script 的消息
+// Listen for messages from the background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'contextMenuTranslate') {
         handleContextMenuTranslation(request);
@@ -64,9 +64,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-// 显示/更新图片翻译结果弹窗；当 isLoading=true 时隐藏复制按钮并显示等待提示
+// Show/update the image translation result popover; hide the copy button and show a waiting hint when isLoading=true
 function showImageTranslationResultPopover(translation, isLoading) {
-    // 如果已存在弹窗，则仅更新内容
+    // If a popover already exists, just update its content
     if (resultPopover && document.body.contains(resultPopover)) {
         const resultText = resultPopover.querySelector('#llm-translate-result-text');
         const copyBtn = resultPopover.querySelector('#llm-translate-copy-btn');
@@ -75,7 +75,7 @@ function showImageTranslationResultPopover(translation, isLoading) {
         return;
     }
 
-    // 创建新的弹窗
+    // Create a new popover
     resultPopover = document.createElement('div');
     resultPopover.id = 'llm-translate-popover';
     resultPopover.className = 'context-menu-popup';
@@ -133,23 +133,23 @@ function getEventEditableElement(event) {
     return null;
 }
 
-// 记录选区起点，防止拖选在输入框外结束时漏判
+// Remember where the selection started so drags ending outside an input aren't missed
 document.addEventListener('mousedown', (event) => {
     editableSelectionOrigin = getEventEditableElement(event);
 }, true);
 
-// 监听鼠标抬起事件，用于显示翻译图标
+// Listen for mouseup to show the translate icon
 document.addEventListener('mouseup', (event) => {
     const selectionOrigin = editableSelectionOrigin;
     editableSelectionOrigin = null;
-    // 如果功能被禁用，则不执行任何操作
+    // Do nothing if the feature is disabled
     if (!isEnabled) return;
 
-    // 如果事件的目标是我们的UI，则不处理，避免冲突
+    // Ignore events targeting our own UI to avoid conflicts
     const target = event.target instanceof Element ? event.target : null;
     if (!target || target.closest('#llm-translate-icon, #llm-translate-popover')) return;
 
-    // 移除已有的UI
+    // Remove any existing UI
     removeTranslationUI();
 
     const editable = selectionOrigin || getEventEditableElement(event) ||
@@ -165,7 +165,7 @@ document.addEventListener('mouseup', (event) => {
         selectedText = window.getSelection().toString().trim();
     }
     if (selectedText.length > 0) {
-        // 保存文本以备 popup 使用
+        // Save the text for use by the popup
         chrome.storage.local.set({ 'lastSelectedText': selectedText });
         if (translateOnSelection) {
             translateSelection(event.clientX, event.clientY, selectedText);
@@ -176,38 +176,38 @@ document.addEventListener('mouseup', (event) => {
     }
 });
 
-// 监听鼠标按下事件，用于在开始新的操作时移除UI
+// Listen for mousedown to remove the UI when a new interaction starts
 document.addEventListener('mousedown', (event) => {
-    // 如果点击的不是我们的UI，则移除它
+    // Remove the UI if the click isn't on it
     if (!event.target.closest('#llm-translate-icon, #llm-translate-popover')) {
-        // 检查是否有翻译弹窗存在
+        // Check whether a translation popover exists
         const popover = document.querySelector('#llm-translate-popover');
         if (popover && popover.classList.contains('context-menu-popup')) {
-            // 对于右键菜单弹窗，使用更严格的关闭条件
-            // 只有当用户点击页面其他地方且不是在选择文本时才关闭
+            // For the context-menu popup, use stricter close conditions
+            // Only close when the user clicks elsewhere on the page and isn't selecting text
             setTimeout(() => {
                 const selection = window.getSelection();
                 const hasSelection = selection && selection.toString().trim().length > 0;
                 
-                // 检查是否在弹窗内有选中的文本
+                // Check whether text is being selected inside the popover
                 const isSelectingInPopover = hasSelection && 
                     selection.anchorNode && 
                     (selection.anchorNode.closest('#llm-translate-popover') ||
                      (selection.anchorNode.parentNode && selection.anchorNode.parentNode.closest('#llm-translate-popover')));
                 
-                // 如果用户不是在弹窗内选择文本，且没有活跃的选择操作，则关闭弹窗
+                // Close the popover if the user isn't selecting text inside it and there's no active selection
                 if (!isSelectingInPopover && !hasSelection) {
                     removeTranslationUI();
                 }
             }, 150);
         } else {
-            // 对于普通的划词翻译图标，立即关闭
+            // For the regular text-selection translate icon, close immediately
             removeTranslationUI();
         }
     }
 });
 
-// 监听键盘事件，ESC 键关闭弹窗
+// Listen for keyboard events; ESC closes the popover
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Control') {
         if (!event.repeat && isEnabled && requireCtrlOnSelection && !translateOnSelection && pendingSelection) {
@@ -233,13 +233,13 @@ document.addEventListener('keyup', (event) => {
 });
 
 
-// --- UI 创建与销毁 ---
+// --- UI creation & teardown ---
 
 /**
- * 创建翻译小图标
- * @param {number} x - 鼠标X坐标
- * @param {number} y - 鼠标Y坐标
- * @param {string} text - 选中的文本
+ * Create the small translate icon
+ * @param {number} x - Mouse X coordinate
+ * @param {number} y - Mouse Y coordinate
+ * @param {string} text - The selected text
  */
 function createTranslateIcon(x, y, text) {
     translateIcon = document.createElement('div');
@@ -247,16 +247,16 @@ function createTranslateIcon(x, y, text) {
     translateIcon.style.left = `${x + window.scrollX}px`;
     translateIcon.style.top = `${y + window.scrollY + 15}px`;
 
-    // 使用 chrome.runtime.getURL() 加载真实的图标文件
+    // Use chrome.runtime.getURL() to load the real icon file
     const iconImg = document.createElement('img');
     iconImg.id = 'llm-translate-icon-img';
     iconImg.src = chrome.runtime.getURL('icons/icon48.png');
-    // 遵从您的指示，将尺寸设置为 20x20
+    // Set the size to 20x20
     iconImg.style.width = '20px';
     iconImg.style.height = '20px';
     translateIcon.appendChild(iconImg);
 
-    // 阻止 mouseup 事件冒泡，避免冲突
+    // Stop mouseup propagation to avoid conflicts
     translateIcon.addEventListener('mouseup', (e) => {
         e.stopPropagation();
     });
@@ -276,11 +276,11 @@ async function translateSelection(x, y, text) {
     const requestId = ++selectionRequestId;
     const { targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['targetLanguage', 'secondTargetLanguage']);
     if (requestId !== selectionRequestId) return;
-    // 存储中保存的是语言键（如 langEnglish）。但为了兼容历史数据，做健壮处理。
+    // Storage holds language keys (e.g. langEnglish). Handle legacy data robustly.
     const storedPrimary = targetLanguage || 'langSimplifiedChinese';
     const storedSecondary = secondTargetLanguage || 'langEnglish';
 
-    // Convert language keys to language names（英文名传给后端提示词使用）
+    // Convert language keys to language names (English names are passed to the backend prompt)
     const langKeyToEnName = {
         'langEnglish': 'English',
         'langSimplifiedChinese': 'Simplified Chinese',
@@ -310,11 +310,11 @@ async function translateSelection(x, y, text) {
         'langSlovak': 'Slovak'
     };
 
-    // 兼容三种输入：语言键、英文名、其他（回退 English）
+    // Handle three kinds of input: language keys, English names, and others (fall back to English)
     const normalizeToEnName = (input) => {
         if (!input) return 'English';
         if (langKeyToEnName[input]) return langKeyToEnName[input];
-        // 常见本地化/别名归一
+        // Normalize common localized names/aliases
         const aliasToEnName = {
             '中文': 'Simplified Chinese',
             '简体中文': 'Simplified Chinese',
@@ -329,7 +329,7 @@ async function translateSelection(x, y, text) {
             '한국어': 'Korean'
         };
         if (aliasToEnName[input]) return aliasToEnName[input];
-        // 若已是英文名称（来自旧版本或手动写入），直接使用
+        // If it's already an English name (from an older version or manual entry), use it as-is
         const values = Object.values(langKeyToEnName);
         if (values.includes(input)) return input;
         return 'English';
@@ -360,7 +360,7 @@ async function translateSelection(x, y, text) {
 }
 
 /**
- * 显示或创建结果浮窗
+ * Show or create the result popover
  */
 function showResultPopover(x, y, content) {
     if (!resultPopover) {
@@ -375,7 +375,7 @@ function showResultPopover(x, y, content) {
 }
 
 /**
- * 更新结果浮窗的内容
+ * Update the content of the result popover
  */
 function updateResultPopover(content) {
     if (resultPopover) {
@@ -383,23 +383,23 @@ function updateResultPopover(content) {
     }
 }
 
-// 处理右键菜单翻译
+// Handle context-menu translation
 async function handleContextMenuTranslation(request) {
     const { text, targetLanguage, secondTargetLanguage } = request;
     
-    // 移除现有的UI
+    // Remove any existing UI
     removeTranslationUI();
     
-    // 显示翻译结果弹窗
+    // Show the translation result popup
     showTranslationResult(text, targetLanguage, secondTargetLanguage);
 }
 
-// 显示翻译结果弹窗
+// Show the translation result popup
 async function showTranslationResult(text, targetLanguage, secondTargetLanguage) {
-    // 创建结果弹窗
+    // Create the result popup
     resultPopover = document.createElement('div');
     resultPopover.id = 'llm-translate-popover';
-    resultPopover.className = 'context-menu-popup'; // 添加特殊类名用于样式
+    resultPopover.className = 'context-menu-popup'; // Special class used for styling
     resultPopover.innerHTML = `
         <div class="llm-translate-header">
             <span class="llm-translate-title">${chrome.i18n.getMessage('popupTitle')}</span>
@@ -422,13 +422,13 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
     
     document.body.appendChild(resultPopover);
     
-    // 添加关闭按钮事件
+    // Attach the close button event
     const closeBtn = resultPopover.querySelector('#llm-translate-close');
     closeBtn.addEventListener('click', () => {
         removeTranslationUI();
     });
     
-    // 添加复制按钮事件
+    // Attach the copy button event
     const copyBtn = resultPopover.querySelector('#llm-translate-copy-btn');
     copyBtn.addEventListener('click', async () => {
         const resultText = resultPopover.querySelector('#llm-translate-result-text');
@@ -436,7 +436,7 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
         
         try {
             await navigator.clipboard.writeText(textToCopy);
-            // 显示复制成功提示
+            // Show a copy-success indicator
             const originalText = copyBtn.textContent;
             copyBtn.textContent = '✅';
             copyBtn.style.color = '#4caf50';
@@ -445,8 +445,8 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
                 copyBtn.style.color = '';
             }, 1500);
         } catch (error) {
-            console.error('复制失败:', error);
-            // 显示复制失败提示
+            console.error('Copy failed:', error);
+            // Show a copy-failure indicator
             const originalText = copyBtn.textContent;
             copyBtn.textContent = '❌';
             copyBtn.style.color = '#f44336';
@@ -457,9 +457,9 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
         }
     });
     
-    // 点击外部关闭（使用现有的 mousedown 监听器逻辑）
+    // Close on outside click (reuse the existing mousedown listener logic)
     
-    // 发送翻译请求
+    // Send the translation request
     try {
         chrome.runtime.sendMessage({
             type: 'translate',
@@ -473,17 +473,17 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
             if (response && response.translation) {
                 resultText.textContent = response.translation;
                 resultText.style.color = '#333';
-                // 翻译成功后显示复制按钮
+                // Show the copy button after a successful translation
                 copyBtn.style.display = 'inline-block';
             } else if (response && response.error) {
                 resultText.textContent = `Error: ${response.error}`;
                 resultText.style.color = '#d32f2f';
-                // 翻译失败时隐藏复制按钮
+                // Hide the copy button when translation fails
                 copyBtn.style.display = 'none';
             } else {
                 resultText.textContent = chrome.i18n.getMessage('statusError', ['Unknown error']) || 'Unknown error';
                 resultText.style.color = '#d32f2f';
-                // 翻译失败时隐藏复制按钮
+                // Hide the copy button when translation fails
                 copyBtn.style.display = 'none';
             }
         });
@@ -495,7 +495,7 @@ async function showTranslationResult(text, targetLanguage, secondTargetLanguage)
 }
 
 /**
- * 移除所有翻译相关的UI元素
+ * Remove all translation-related UI elements
  */
 function removeTranslationUI() {
     pendingSelection = null;
@@ -609,7 +609,7 @@ function startScreenshotSelectionOverlay() {
     translateBtn.addEventListener('click', async (ev) => {
         ev.stopPropagation();
         if (!selectionRect) return;
-        // 先显示加载中的弹窗
+        // First show a loading popover
         const waitingText = chrome.i18n.getMessage('statusTranslating') || 'Translating...';
         showImageTranslationResultPopover(waitingText, true);
         // ask background to capture and crop

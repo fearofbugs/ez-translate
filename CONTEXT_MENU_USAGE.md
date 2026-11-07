@@ -1,89 +1,89 @@
-# 右键菜单翻译功能使用说明
+# Context Menu Translation Feature Guide
 
-## 功能概述
+## Overview
 
-LLM Translate 扩展现在支持右键菜单翻译功能，让您可以在任何网页上选中文字后，通过右键菜单快速进行翻译。
+The EZ Translate extension now supports context menu translation, letting you select text on any webpage and translate it quickly via the right-click menu.
 
-## 使用方法
+## How to Use
 
-### 1. 选中文字
-在任意网页上选中您想要翻译的文字。
+### 1. Select text
+Select the text you want to translate on any webpage.
 
-### 2. 右键菜单
-右键点击选中的文字，您会看到 "LLM Translate" 菜单项。
+### 2. Right-click menu
+Right-click the selected text and you'll see the "LLM Translate" menu item.
 
-### 3. 选择翻译选项
-- **翻译为 [主要目标语言]**：将文字翻译为您设置的主要目标语言
-- **翻译为 [次要目标语言]**：将文字翻译为您设置的次要目标语言
-- **打开设置**：快速打开扩展设置页面
+### 3. Choose a translation option
+- **Translate to [Primary Target Language]**: Translates the text into your primary target language
+- **Translate to [Secondary Target Language]**: Translates the text into your secondary target language
+- **Open Settings**: Quickly opens the extension settings page
 
-### 4. 查看翻译结果
-选择翻译选项后，会在页面中央弹出一个翻译结果窗口，显示：
-- 原文
-- 翻译结果
-- 关闭按钮
+### 4. View the translation result
+After choosing a translation option, a result window pops up in the center of the page showing:
+- The original text
+- The translation
+- A close button
 
-## 菜单结构
+## Menu Structure
 
 ```
 LLM Translate
-├── 翻译为 [主要目标语言]
-├── 翻译为 [次要目标语言]
-├── ──────────────── (分隔线)
-└── 打开设置
+├── Translate to [Primary Target Language]
+├── Translate to [Secondary Target Language]
+├── ──────────────── (separator)
+└── Open Settings
 ```
 
-## 语言设置
+## Language Settings
 
-右键菜单中显示的语言名称会根据您在设置页面中配置的目标语言自动更新：
+The language names shown in the context menu update automatically based on the target languages you configure on the settings page:
 
-1. 打开扩展设置页面
-2. 在 "目标语言设定" 部分配置：
-   - **默认目标语言**：主要翻译目标
-   - **第二目标语言**：次要翻译目标
-3. 保存设置后，右键菜单会自动更新显示新的语言名称
+1. Open the extension settings page
+2. In the "Target Language Settings" section, configure:
+   - **Default Target Language**: the primary translation target
+   - **Second Target Language**: the secondary translation target
+3. After saving, the context menu updates automatically to show the new language names
 
-## 支持的语言
+## Supported Languages
 
-扩展支持 12 种语言的右键菜单界面：
+The extension supports context menu UIs in 12 languages:
 - 🇺🇸 English
-- 🇨🇳 简体中文
-- 🇹🇼 繁體中文
-- 🇸🇦 العربية (阿拉伯语)
-- 🇧🇩 বাংলা (孟加拉语)
-- 🇩🇪 Deutsch (德语)
-- 🇪🇸 Español (西班牙语)
-- 🇫🇷 Français (法语)
-- 🇮🇳 हिन्दी (印地语)
-- 🇯🇵 日本語 (日语)
-- 🇰🇷 한국어 (韩语)
-- 🇵🇹 Português (葡萄牙语)
-- 🇷🇺 Русский (俄语)
+- 🇨🇳 简体中文 (Simplified Chinese)
+- 🇹🇼 繁體中文 (Traditional Chinese)
+- 🇸🇦 العربية (Arabic)
+- 🇧🇩 বাংলা (Bengali)
+- 🇩🇪 Deutsch (German)
+- 🇪🇸 Español (Spanish)
+- 🇫🇷 Français (French)
+- 🇮🇳 हिन्दी (Hindi)
+- 🇯🇵 日本語 (Japanese)
+- 🇰🇷 한국어 (Korean)
+- 🇵🇹 Português (Portuguese)
+- 🇷🇺 Русский (Russian)
 
-## 技术特性
+## Technical Highlights
 
-- **智能语言检测**：自动检测原文语言，如果与目标语言相同则使用次要目标语言
-- **动态菜单更新**：语言设置更改后，右键菜单会自动更新
-- **多语言支持**：右键菜单界面支持 12 种语言
-- **统一体验**：与现有的划词翻译功能使用相同的翻译引擎和设置
+- **Smart language detection**: Automatically detects the source language; if it matches the target language, the second target language is used
+- **Dynamic menu updates**: The context menu updates automatically whenever language settings change
+- **Multilingual support**: The context menu UI supports 12 languages
+- **Consistent experience**: Uses the same translation engine and settings as the existing text-selection translation feature
 
-## 注意事项
+## Notes
 
-1. 右键菜单功能需要 `contextMenus` 权限，已在 manifest.json 中配置
-2. 翻译结果会以弹窗形式显示，不会替换原文字
-3. 如果翻译失败，会显示错误信息
-4. 可以通过点击弹窗的关闭按钮或点击页面其他区域来关闭翻译结果
+1. The context menu feature requires the `contextMenus` permission, which is already configured in manifest.json
+2. Translation results appear in a popup; the original text is never replaced
+3. If translation fails, an error message is displayed
+4. You can close the result by clicking the popup's close button or clicking elsewhere on the page
 
-## 故障排除
+## Troubleshooting
 
-如果右键菜单没有出现：
-1. 确保已选中文字
-2. 检查扩展是否已启用
-3. 尝试刷新页面后重试
-4. 检查浏览器控制台是否有错误信息
+If the context menu doesn't appear:
+1. Make sure text is selected
+2. Check that the extension is enabled
+3. Try refreshing the page and retrying
+4. Check the browser console for error messages
 
-如果翻译失败：
-1. 检查 API 密钥是否正确配置
-2. 检查网络连接
-3. 查看翻译结果弹窗中的错误信息
-4. 尝试在设置页面重新配置 API 密钥
+If translation fails:
+1. Check that the API key is configured correctly
+2. Check your network connection
+3. Look at the error message in the translation result popup
+4. Try reconfiguring the API key on the settings page

@@ -7,8 +7,6 @@ EZ Translate is a modern browser translation plugin that harnesses the power of 
 
 Unlike traditional machine translation, this plugin aims to understand the nuances of language through advanced AI technology, generating high-quality translations to help you easily overcome language barriers and efficiently access global information.
 
-[查看中文版本 (View Chinese Version)](README_zh.md)
-
 ## Supported LLM Providers
 
 <div align="center">
@@ -224,19 +222,7 @@ EZ Translate now supports **OpenRouter**, a unified API platform that provides a
 
 *Last updated: September 19, 2025*
 
-## Translation Quality Comparison
-
-See how EZ Translate compares to other translation tools in terms of accuracy and fluency:
-
-### English to Chinese Translation Examples
-
-| Original Text | Google Translate API | EZ Translate |
-|---------------|------------------|---------------|
-| "Supports one-time, recurring, and usage-based pricing models. Learn more about Subscriptions, Usage-based billing, and Invoicing." | "支持一次性，经常性和基于用法的定价模型。了解有关订阅，基于使用的计费和发票的更多信息。" | ✅ "支持一次性、周期性和基于使用情况的定价模型。了解更多关于订阅、基于使用情况的计费和发票的信息。" |
-| "If you're residing in one of China's territories, please select an option for your specific location. You won't be able to change it later." | "如果您居住在中国的一个领土之一，请为您的特定位置选择一个选项。您将稍后再进行更改。" | ✅ "如果您居住在中国的某个地区，请选择您所在的具体位置。您将无法在之后更改它。" |
-| "Super cool design and the app idea is a no brainer. Good work" | "超级酷的设计和应用程序的想法是无关紧要的。做得好" | ✅ "超酷的设计，这个应用的想法非常直观。做得好" |
-
-### Key Advantages
+## Key Advantages
 
 * **Context Awareness**: EZ Translate understands context better than traditional MT
 * **Natural Fluency**: More natural and fluent translations that sound human-written
