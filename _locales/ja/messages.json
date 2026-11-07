@@ -587,34 +587,6 @@
         "message": "ページ内翻訳を有効にする",
         "description": "ページ内選択翻訳を有効/無効にするためのトグルスイッチのラベル。"
     },
-    "translationPrompt": {
-        "message": "<Input> のテキストを $targetLanguage$ に翻訳してください。<Input> のテキストが既に $targetLanguage$ の場合は、代わりに $secondTargetLanguage$ に翻訳してください。説明や追加のテキストなしで、翻訳結果のみを返してください。返す言語は常に1つだけにしてください。\n\n<input>\n$text$\n</input>",
-        "description": "翻訳APIのプロンプト。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "中国語"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "英語"
-            },
-            "text": {
-                "content": "$3",
-                "example": "こんにちは、世界！"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "次のテキストを$targetLanguage$に翻訳してください。説明、記述、または余分なテキストなしで、翻訳のみを返してください。",
-        "description": "翻訳APIのシステムプロンプト。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "中国語"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "目標言語設定",
         "description": "目標言語設定セクションのタイトル。"
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "キャンセル",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "画像内のテキストを読み取り、$targetLanguage$に翻訳してください。テキストが既に$targetLanguage$の場合は、代わりに$secondTargetLanguage$に翻訳してください。説明なしで翻訳のみを返してください。",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "キャプチャ > 選択領域",

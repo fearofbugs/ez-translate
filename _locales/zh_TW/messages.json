@@ -587,34 +587,6 @@
         "message": "開啟頁面劃詞翻譯",
         "description": "用於啟用/停用頁面劃詞翻譯功能的切換開關標籤。"
     },
-    "translationPrompt": {
-        "message": "請將 <Input> 文字翻譯成 $targetLanguage$。如果 <Input> 文字已經是 $targetLanguage$，請改為翻譯成 $secondTargetLanguage$。請直接返回譯文，不要包含任何解釋、說明或多餘的文字。請僅返回一種語言的譯文。\n\n<input>\n$text$\n</input>",
-        "description": "翻譯 API 的提示。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "繁體中文"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            },
-            "text": {
-                "content": "$3",
-                "example": "indie hacker"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "請將以下文字翻譯成 $targetLanguage$。請直接返回譯文，不要包含任何解釋、說明或多餘的文字。",
-        "description": "翻譯 API 的系統提示。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "繁體中文"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "目標語言設定",
         "description": "目標語言設定區塊的標題。"
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "取消",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "請讀取圖片中的文字並將其翻譯成$targetLanguage$。如果文字已經是$targetLanguage$，請改為翻譯成$secondTargetLanguage$。只返回翻譯結果，不要任何解釋。",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "擷取 > 選擇區域",

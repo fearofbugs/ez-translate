@@ -7,6 +7,19 @@ EZ Translate is a modern browser translation plugin that harnesses the power of 
 
 Unlike traditional machine translation, this plugin aims to understand the nuances of language through advanced AI technology, generating high-quality translations to help you easily overcome language barriers and efficiently access global information.
 
+## Cloudflare Workers AI in the model priority list
+
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **Workers AI → Use REST API**.
+2. Create a Workers AI API token and copy your Account ID.
+3. Open this extension’s Settings and enter **Cloudflare Workers AI API token** and **Cloudflare Account ID**.
+4. Click **Save keys & fetch all free models**. Add Cloudflare models to the same priority list as your other models, then drag them into order.
+
+Cloudflare models use a shared daily free allowance rather than zero-priced tokens. Use a Workers Free account for a hard free limit; Workers Paid accounts can incur charges beyond the allowance. The catalog fetches every page of text-generation models and excludes known paid-only models. Availability can change; a model-specific access error falls through to your next model.
+
+When Cloudflare reports its daily allowance is exhausted (error 3036), the extension skips Cloudflare models for that account until 00:00 UTC. A temporary capacity error only cools down that model. Your saved system prompt and Markdown output apply to Cloudflare translations too.
+
+See [Cloudflare API setup](https://developers.cloudflare.com/workers-ai/get-started/rest-api/) and [pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/). Authenticated requests require your own credentials; automated tests use simulated API responses.
+
 ## Supported LLM Providers
 
 <div align="center">
@@ -73,6 +86,7 @@ This method is recommended if you cannot access the Chrome Web Store.
 *   **🆕 Context Menu Translation:** Right-click on selected text to access translation options directly from the context menu. Choose between your primary or secondary target language for instant translation in a centered popup window.
 *   **📸 Screenshot Translation:** Capture any area of the webpage and translate text within images using AI vision capabilities. Perfect for translating text in images, PDFs, or screenshots.
 *   **⌨️ Keyboard Shortcuts:** Use `Ctrl+Shift+S` (Windows/Linux) or `Command+Shift+S` (Mac) to quickly activate screenshot translation mode.
+*   **🪟 Floating Translator:** Press `Ctrl+Shift+Y` (Windows/Linux) or `Command+Shift+Y` (Mac), or click the panel icon in the popup, to open a small draggable translator on any page. Type a word or sentence and press `Ctrl+Enter`; the header can be dragged anywhere and the position is remembered.
 *   **Quick Popup Translation:** Click the browser toolbar icon to quickly enter or paste text for translation in a popup window.
 *   **Smart Auto-fill:** After selecting text, open the popup, and the selected text will be automatically filled into the input box, simplifying the operation.
 *   **One-Click Copy:** Copy translation results instantly with the built-in copy button, complete with visual feedback and multi-language support.
@@ -170,6 +184,7 @@ EZ Translate offers multiple convenient ways to translate text on web pages:
 - **Copy protection**: Enhanced popup stability for text selection
 - **Keyboard shortcuts**: ESC key to close popups quickly
 - **Screenshot shortcuts**: `Ctrl+Shift+S` / `Command+Shift+S` for instant screenshot mode
+- **Floating translator**: `Ctrl+Shift+Y` / `Command+Shift+Y` toggles a draggable mini-panel; `Ctrl+Enter` translates
 
 ## Tech Stack
 

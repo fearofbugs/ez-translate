@@ -1,105 +1,225 @@
-/* content.css - Styles for the text-selection translate icon and popover */
+/* content.css - Selection translate icon and result popover */
 
+/* Inline SVG icons injected from content.js */
+.svg-icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* --- Translate icon following selection --- */
 #llm-translate-icon {
-    position: absolute; /* Use absolute so the icon follows page scrolling */
-    background-color: #ffffff; /* White background */
-    border: 1px solid #e0e0e0; /* Thin border */
+    position: absolute; /* absolute so the icon follows page scrolling */
+    background-color: #ffffff;
+    border: 1px solid rgba(99, 102, 241, 0.25);
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    z-index: 2147483647; /* Try to use the maximum z-index */
-    transition: transform 0.1s ease-in-out;
+    box-shadow: 0 2px 6px rgba(31, 35, 51, 0.18), 0 6px 16px rgba(31, 35, 51, 0.14);
+    z-index: 2147483647; /* maximum z-index */
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 #llm-translate-icon:hover {
-    transform: scale(1.1);
+    transform: scale(1.12);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35), 0 8px 20px rgba(99, 102, 241, 0.25);
 }
 
+#llm-translate-icon-img {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+/* --- Reading panel for selection results --- */
 #llm-translate-popover {
     position: absolute;
     background-color: #ffffff;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    padding: 12px 16px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border: 1px solid #e4e6f0;
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: 0 4px 12px rgba(31, 35, 51, 0.14), 0 12px 32px rgba(31, 35, 51, 0.12);
     z-index: 2147483647;
-    max-width: 380px;
+    box-sizing: border-box;
+    width: min(600px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-wrap: anywhere;
     font-size: 14px;
-    line-height: 1.6;
-    color: #333;
-    display: none; /* Hidden by default */
+    line-height: 1.65;
+    color: #2a2e3f;
+    display: none; /* hidden by default */
+    overflow-y: auto;
+    max-height: min(720px, calc(100dvh - 24px));
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(42, 46, 63, 0.25) transparent;
 }
 
-/* Screenshot selection overlay */
+/* Thin scrollbar */
+#llm-translate-popover::-webkit-scrollbar {
+    width: 6px;
+}
+
+#llm-translate-popover::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#llm-translate-popover::-webkit-scrollbar-thumb {
+    background: rgba(42, 46, 63, 0.22);
+    border-radius: 999px;
+}
+
+#llm-translate-popover::-webkit-scrollbar-thumb:hover {
+    background: rgba(42, 46, 63, 0.35);
+}
+
+/* Markdown content inside the popover */
+#llm-translate-popover .llm-markdown,
+#llm-translate-popover.llm-markdown { white-space: normal; }
+/* Scope typography to both the direct selection result and nested modal result. */
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) :is(h1, h2, h3, h4, h5, h6) {
+    font-family: inherit;
+    font-weight: 650;
+    line-height: 1.35;
+    margin: 1em 0 0.45em;
+    color: #1f2333;
+}
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) h1 { font-size: 19px; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) h2 { font-size: 17px; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) :is(h3, h4, h5, h6) { font-size: 15px; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) p { margin: 0.65em 0; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) :is(ul, ol) { margin: 0.65em 0; padding-left: 1.5em; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) li { margin: 0.3em 0; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) pre { max-width: 100%; overflow: auto; white-space: pre; padding: 12px; background: #f5f6fb; border-radius: 8px; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) blockquote { border-left: 3px solid #6366f1; margin: 12px 0; padding-left: 14px; color: #5a5f73; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) a { color: #6366f1; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) > :first-child { margin-top: 0; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) > :last-child { margin-bottom: 0; }
+
+/* Wide tables scroll independently rather than squeezing every column. */
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 14px 0;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.5;
+    scrollbar-width: thin;
+}
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) :is(th, td) {
+    min-width: 112px;
+    border: 1px solid #e4e6f0;
+    padding: 9px 12px;
+    text-align: left;
+    vertical-align: top;
+    white-space: normal;
+    word-break: normal;
+}
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) th { background: #f2f3f9; font-weight: 650; color: #1f2333; }
+:is(#llm-translate-popover.llm-markdown, #llm-translate-popover .llm-markdown) tr:nth-child(even) td { background: #fafbfe; }
+
+/* --- Screenshot selection overlay --- */
 #llm-translate-screenshot-overlay {
     cursor: crosshair;
 }
 
 #llm-translate-selection-toolbar button {
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 6px 14px;
+    border: 1px solid #dcdee9;
+    background: #ffffff;
+    color: #3a3f52;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-/* Context-menu translation popup styles */
+#llm-translate-selection-toolbar button:hover {
+    background: #f2f3f9;
+    border-color: #c3c6d6;
+}
+
+#llm-translate-selection-toolbar button.primary {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff;
+}
+
+#llm-translate-selection-toolbar button.primary:hover {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+/* --- Context-menu / screenshot result popup (centered modal) --- */
 #llm-translate-popover.context-menu-popup {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     display: block !important;
-    max-width: 500px;
-    min-width: 300px;
+    width: min(680px, calc(100vw - 24px));
+    max-width: none;
+    max-height: min(800px, calc(100dvh - 24px));
+    min-width: 0;
     padding: 0;
+    font-size: 14px;
 }
 
-/* Popup header */
+/* Header */
 .llm-translate-header {
-    background: #f5f5f5;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e0e0e0;
-    border-radius: 8px 8px 0 0;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 1;
 }
 
 .llm-translate-title {
     font-weight: 600;
-    color: #333;
-    font-size: 16px;
+    color: #ffffff;
+    font-size: 14px;
+    letter-spacing: 0.01em;
 }
 
 .llm-translate-close {
-    background: none;
+    background: rgba(255, 255, 255, 0.16);
     border: none;
-    font-size: 20px;
-    color: #666;
+    color: #ffffff;
     cursor: pointer;
-    padding: 0;
+    padding: 4px;
     width: 24px;
     height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
 }
 
 .llm-translate-close:hover {
-    background-color: #e0e0e0;
-    color: #333;
+    background: rgba(255, 255, 255, 0.3);
 }
 
-/* Popup content */
+.llm-translate-close .svg-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Body */
 .llm-translate-content {
-    padding: 16px;
+    padding: 20px;
 }
 
 .llm-translate-original,
@@ -112,20 +232,29 @@
     margin-bottom: 0;
 }
 
+.llm-translate-original > strong,
+.llm-translate-result-header > strong {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a8fa3;
+}
+
 .llm-translate-text {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: #f9f9f9;
-    border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: #f7f8fc;
+    border: 1px solid #eceef5;
+    border-radius: 8px;
     line-height: 1.5;
+    font-size: 14px;
     word-wrap: break-word;
     white-space: pre-wrap;
-    user-select: text; /* Ensure the text can be selected */
+    user-select: text; /* make the text selectable */
     cursor: text;
 }
 
-/* Translation result header styles */
 .llm-translate-result-header {
     display: flex;
     justify-content: space-between;
@@ -133,28 +262,66 @@
     margin-bottom: 4px;
 }
 
-/* Copy button styles */
+/* The modal owns vertical scrolling; avoid nested short scroll regions. */
+#llm-translate-result-text {
+    max-height: none;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(42, 46, 63, 0.25) transparent;
+}
+
+#llm-translate-result-text::-webkit-scrollbar {
+    width: 6px;
+}
+
+#llm-translate-result-text::-webkit-scrollbar-thumb {
+    background: rgba(42, 46, 63, 0.22);
+    border-radius: 999px;
+}
+
+/* Text selection colors: prevent dark-on-dark */
+.llm-translate-text::selection {
+    background: #dcdcff;
+    color: #1f2333;
+}
+
+/* Copy button */
 .llm-translate-copy-btn {
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 14px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 13px;
     cursor: pointer;
-    color: #666;
-    transition: all 0.2s ease;
+    color: #8a8fa3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
     margin-left: 8px;
 }
 
 .llm-translate-copy-btn:hover {
-    background: #e0e0e0;
-    border-color: #bbb;
-    color: #333;
+    background: #eef0f6;
+    color: #3a3f52;
 }
 
 .llm-translate-copy-btn:active {
-    background: #d0d0d0;
     transform: translateY(1px);
+}
+
+.llm-translate-copy-btn .svg-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.llm-translate-copy-btn.copy-done {
+    color: #16a34a !important;
+}
+
+.llm-translate-copy-btn.copy-failed {
+    color: #dc2626 !important;
 }
 
 /* Ensure text selection inside the popup doesn't trigger closing */
@@ -162,8 +329,6 @@
     pointer-events: auto;
 }
 
-/* Enhanced text selection experience */
-.llm-translate-text::selection {
-    background: #b3e5fc;
-    color: #0277bd;
-}
+#llm-translate-popover > .translation-timing { margin-top: 12px; padding: 8px 12px; border-top: 1px solid #e4e6f0; color: #70758a; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+#llm-translate-popover .translation-timing summary { cursor: pointer; margin-top: 4px; }
+#llm-translate-popover .translation-timing ul { padding-left: 18px; margin: 6px 0; }

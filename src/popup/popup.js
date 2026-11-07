@@ -138,6 +138,9 @@ function speak(text, lang) {
 const translateButton = document.getElementById('translate-button');
 const textInput = document.getElementById('text-input');
 const resultContainer = document.getElementById('translation-result');
+const timingContainer = document.createElement('div');
+resultContainer.closest('.result-container').after(timingContainer);
+let popupRequestId = 0;
 const targetLanguageSelect = document.getElementById('target-language');
 const speakButton = document.getElementById('speak-button');
 const speakInputButton = document.getElementById('speak-input-button');
@@ -148,6 +151,7 @@ const autoTranslateToggle = document.getElementById('auto-translate-toggle');
 const requireCtrlToggle = document.getElementById('require-ctrl-toggle');
 const combinedSelectionHint = document.getElementById('combined-selection-hint');
 const screenshotTranslateButton = document.getElementById('screenshot-translate-button');
+const floatingPanelButton = document.getElementById('floating-panel-button');
 const settingsIconButton = document.getElementById('settings-icon-button');
 
 textInput.addEventListener('input', () => {
@@ -161,6 +165,8 @@ translateButton.addEventListener('click', () => {
     const targetLanguage = langKeyToEnName[targetLanguageKey] || 'English';
 
     if (text.trim()) {
+        const requestId = ++popupRequestId;
+        TranslationTiming.start(timingContainer);
         resultContainer.innerText = chrome.i18n.getMessage('statusTranslating');
         speakButton.style.display = 'none';
         copyButton.style.display = 'none';
@@ -176,12 +182,16 @@ translateButton.addEventListener('click', () => {
                 targetLanguage, 
                 secondTargetLanguage 
             }, (response) => {
+                if (requestId !== popupRequestId) return;
+                if (chrome.runtime.lastError) response = { error: chrome.runtime.lastError.message };
+                response ||= { error: 'No response from extension' };
+                TranslationTiming.finish(timingContainer, response);
                 if (response.error) {
                     resultContainer.innerText = chrome.i18n.getMessage('statusError', [response.error]);
                     speakButton.style.display = 'none';
                     copyButton.style.display = 'none';
                 } else {
-                    resultContainer.innerText = response.translation;
+                    renderMarkdown(resultContainer, response.translation);
                     speakButton.style.display = 'block';
                     copyButton.style.display = 'block';
                 }
@@ -196,13 +206,18 @@ speakButton.addEventListener('click', () => {
     speak(text, lang);
 });
 
+const ICON_COPY = '<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+const ICON_CHECK = '<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
 copyButton.addEventListener('click', () => {
     const text = resultContainer.innerText;
     navigator.clipboard.writeText(text).then(() => {
-        // Optional: Add visual feedback
-        copyButton.textContent = '✓';
+        // Visual feedback: show a checkmark, then restore the clipboard icon
+        copyButton.innerHTML = ICON_CHECK;
+        copyButton.classList.add('success');
         setTimeout(() => {
-            copyButton.innerHTML = '&#x1f4cb;';
+            copyButton.innerHTML = ICON_COPY;
+            copyButton.classList.remove('success');
         }, 1000);
     }).catch(err => {
         console.error('Failed to copy text: ', err);
@@ -307,6 +322,18 @@ screenshotTranslateButton.addEventListener('click', async () => {
         window.close();
     } catch (e) {
         console.error('Failed to start screenshot selection:', e);
+    }
+});
+
+// --- Floating panel ---
+floatingPanelButton.addEventListener('click', async () => {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.id) return;
+        await chrome.tabs.sendMessage(tab.id, { type: 'toggleFloatingPanel' });
+        window.close();
+    } catch (e) {
+        console.error('Failed to toggle floating panel:', e);
     }
 });
 

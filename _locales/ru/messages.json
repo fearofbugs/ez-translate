@@ -587,34 +587,6 @@
         "message": "Включить перевод на странице",
         "description": "Надпись для переключателя для включения/выключения перевода выделенного текста на странице."
     },
-    "translationPrompt": {
-        "message": "Пожалуйста, переведите текст <Input> на $targetLanguage$. Если текст <Input> уже на $targetLanguage$, пожалуйста, переведите его на $secondTargetLanguage$. Пожалуйста, верните текст перевода напрямую, без каких-либо объяснений, описаний или дополнительного текста. Возвращайте только один язык за раз.\n\n<input>\n$text$\n</input>",
-        "description": "Запрос для API перевода.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Китайский"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "Английский"
-            },
-            "text": {
-                "content": "$3",
-                "example": "Привет, мир!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "Пожалуйста, переведите следующий текст на $targetLanguage$. Пожалуйста, верните перевод напрямую, без каких-либо объяснений, описаний или дополнительного текста.",
-        "description": "Системный запрос для API перевода.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Китайский"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "Настройки целевого языка",
         "description": "Заголовок раздела настроек целевого языка."
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "Отмена",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "Пожалуйста, прочитайте текст на изображении и переведите его на $targetLanguage$. Если текст уже на $targetLanguage$, переведите его на $secondTargetLanguage$ вместо этого. Верните только перевод без объяснений.",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "Захват > Выбранная область",

@@ -587,34 +587,6 @@
         "message": "Seiteninterne Übersetzung aktivieren",
         "description": "Beschriftung für den Umschalter zum Aktivieren/Deaktivieren der seiteninternen Auswahlübersetzung."
     },
-    "translationPrompt": {
-        "message": "Bitte übersetzen Sie den <Input>-Text ins $targetLanguage$. Wenn der <Input>-Text bereits auf $targetLanguage$ ist, übersetzen Sie ihn stattdessen ins $secondTargetLanguage$. Bitte geben Sie den Übersetzungstext direkt zurück, ohne Erklärung, Beschreibung oder zusätzlichen Text. Bitte geben Sie jeweils nur eine Sprache zurück.\n\n<input>\n$text$\n</input>",
-        "description": "Aufforderung für die Übersetzungs-API.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Chinesisch"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "Englisch"
-            },
-            "text": {
-                "content": "$3",
-                "example": "Hallo, Welt!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "Bitte übersetzen Sie den folgenden Text ins $targetLanguage$. Bitte geben Sie die Übersetzung direkt zurück, ohne Erklärung, Beschreibung oder zusätzlichen Text.",
-        "description": "Systemaufforderung für die Übersetzungs-API.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Chinesisch"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "Zielsprache-Einstellungen",
         "description": "Titel für den Abschnitt der Zielsprache-Einstellungen."
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "Abbrechen",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "Bitte lesen Sie den Text im Bild und übersetzen Sie ihn ins $targetLanguage$. Wenn der Text bereits auf $targetLanguage$ ist, übersetzen Sie ihn stattdessen ins $secondTargetLanguage$. Geben Sie nur die Übersetzung zurück, ohne Erklärungen.",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "Erfassen > Ausgewählter Bereich",

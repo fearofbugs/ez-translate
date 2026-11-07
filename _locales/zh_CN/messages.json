@@ -587,34 +587,6 @@
         "message": "开启页面划词翻译",
         "description": "用于启用/禁用页面划词翻译功能的切换开关的标签。"
     },
-    "translationPrompt": {
-        "message": "请将 <Input> 文本翻译成 $targetLanguage$。如果 <Input> 文本已经是 $targetLanguage$，请翻译成 $secondTargetLanguage$。请直接返回译文，不要包含任何解释、说明或多余的文字。请仅返回一种语言的译文。\n\n<input>\n$text$\n</input>",
-        "description": "翻译 API 的提示。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "简体中文"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            },
-            "text": {
-                "content": "$3",
-                "example": "indie hacker"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "请将以下文本翻译成$targetLanguage$。请直接返回译文，不要包含任何解释、说明或多余的文字。",
-        "description": "翻译 API 的系统提示。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "中文"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "目标语言设置",
         "description": "目标语言设置部分的标题。"
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "取消",
         "description": "取消按钮标签。"
-    },
-    "imageTranslationPrompt": {
-        "message": "请阅读图片中的文字并将其翻译成 $targetLanguage$。如果图片中的文字已经是 $targetLanguage$，请改为翻译成 $secondTargetLanguage$。请直接返回译文，不要包含任何解释。",
-        "description": "用于图片 OCR + 翻译的提示词。",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "简体中文"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "捕获 > 选择区域",

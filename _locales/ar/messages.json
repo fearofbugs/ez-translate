@@ -587,34 +587,6 @@
         "message": "تمكين الترجمة على الصفحة",
         "description": "تسمية مفتاح التبديل لتمكين/تعطيل ترجمة التحديد على الصفحة."
     },
-    "translationPrompt": {
-        "message": "يرجى ترجمة نص <Input> إلى $targetLanguage$. إذا كان نص <Input> بالفعل بـ $targetLanguage$، فالرجاء ترجمته بدلاً من ذلك إلى $secondTargetLanguage$. يرجى إعادة نص الترجمة مباشرة، دون أي شرح أو وصف أو نص إضافي. يرجى إرجاع لغة واحدة فقط في كل مرة.\n\n<input>\n$text$\n</input>",
-        "description": "موجه لواجهة برمجة تطبيقات الترجمة.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "الصينية"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "الإنجليزية"
-            },
-            "text": {
-                "content": "$3",
-                "example": "أهلاً بالعالم!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "يرجى ترجمة النص التالي إلى $targetLanguage$. يرجى إعادة الترجمة مباشرة، دون أي شرح أو وصف أو نص إضافي.",
-        "description": "موجه نظام لواجهة برمجة تطبيقات الترجمة.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "الصينية"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "إعدادات اللغة المستهدفة",
         "description": "عنوان قسم إعدادات اللغة المستهدفة."
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "إلغاء",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "يرجى قراءة النص في الصورة وترجمته إلى $targetLanguage$. إذا كان النص بالفعل باللغة $targetLanguage$، فقم بترجمته إلى $secondTargetLanguage$ بدلاً من ذلك. أعد الترجمة فقط دون أي تفسيرات.",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "التقاط > المنطقة المحددة",

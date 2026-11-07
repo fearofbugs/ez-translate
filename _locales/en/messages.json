@@ -587,34 +587,6 @@
         "message": "Enable In-Page Translation",
         "description": "Label for the toggle switch to enable/disable in-page selection translation."
     },
-    "translationPrompt": {
-        "message": "Please translate the <Input> text into $targetLanguage$. If the <Input> text is already in $targetLanguage$, please translate it into $secondTargetLanguage$ instead. Please return the translation text directly, without any explanation, description, or extra text. Please return only one language at a time.\n\n<input>\n$text$\n</input>",
-        "description": "Prompt for the translation API.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            },
-            "text": {
-                "content": "$3",
-                "example": "indie hacker"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "Please translate the following text into $targetLanguage$. Please return the translation directly, without any explanation, description, or extra text.",
-        "description": "System prompt for the translation API.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Chinese"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "Target Language Settings",
         "description": "Title for the target language settings section."
@@ -687,19 +659,25 @@
         "message": "Cancel",
         "description": "Cancel button label."
     },
-    "imageTranslationPrompt": {
-        "message": "Please read the text in the image and translate it into $targetLanguage$. If the text is already in $targetLanguage$, translate it into $secondTargetLanguage$ instead. Return only the translation without any explanations.",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
+    "floatingPanelButton": {
+        "message": "Floating translator",
+        "description": "Tooltip for the button that opens the draggable floating translator."
+    },
+    "floatingPanelTitle": {
+        "message": "EZ Translate",
+        "description": "Title shown in the floating translator header."
+    },
+    "floatingPanelPlaceholder": {
+        "message": "Type a word or sentence…",
+        "description": "Placeholder for the floating translator input."
+    },
+    "floatingPanelHint": {
+        "message": "Ctrl+Enter to translate",
+        "description": "Hint shown in the floating translator footer."
+    },
+    "floatingPanelClose": {
+        "message": "Close",
+        "description": "Tooltip for closing the floating translator."
     },
     "shortcutCaptureDescription": {
         "message": "Capture > Selected Area",

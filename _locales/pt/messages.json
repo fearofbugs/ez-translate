@@ -587,34 +587,6 @@
         "message": "Ativar Tradução na Página",
         "description": "Rótulo para o botão de alternância para ativar/desativar a tradução de seleção na página."
     },
-    "translationPrompt": {
-        "message": "Traduza o texto de <Input> para $targetLanguage$. Se o texto de <Input> já estiver em $targetLanguage$, traduza-o para $secondTargetLanguage$. Retorne o texto da tradução diretamente, sem explicações, descrições ou texto adicional. Retorne apenas um idioma por vez.\n\n<input>\n$text$\n</input>",
-        "description": "Prompt para a API de tradução.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Chinês"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "Inglês"
-            },
-            "text": {
-                "content": "$3",
-                "example": "Olá, mundo!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "Por favor, traduza o seguinte texto para $targetLanguage$. Por favor, retorne a tradução diretamente, sem qualquer explicação, descrição ou texto extra.",
-        "description": "Prompt do sistema para a API de tradução.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Chinês"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "Configurações de Idioma de Destino",
         "description": "Título da seção de configurações de idioma de destino."
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "Cancelar",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "Por favor, leia o texto na imagem e traduza-o para $targetLanguage$. Se o texto já estiver em $targetLanguage$, traduza-o para $secondTargetLanguage$ em vez disso. Retorne apenas a tradução sem explicações.",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "Capturar > Área Selecionada",

@@ -8,124 +8,7 @@
 <body>
     <h1 data-i18n="settingsTitle"></h1>
 
-    <div class="tabs">
-        <button class="tab-button active" data-provider="gemini" data-i18n="geminiProvider"></button>
-        <button class="tab-button" data-provider="siliconflow" data-i18n="siliconflowProvider"></button>
-        <button class="tab-button" data-provider="openrouter" data-i18n="openrouterProvider"></button>
-        <button class="tab-button" data-provider="orcarouter" data-i18n="orcarouterProvider"></button>
-        <button class="tab-button" data-provider="ollama" data-i18n="ollamaProvider"></button>
-    </div>
-
-    <!-- Gemini Settings -->
-    <div id="gemini-settings" class="tab-content active">
-        <div class="form-group">
-            <label for="gemini-api-key">
-                <span data-i18n="geminiApiKeyLabel"></span>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" data-i18n="getApiKeyLink"></a>
-            </label>
-            <div class="api-key-container">
-                <input type="password" id="gemini-api-key" data-i18n-placeholder="geminiApiPlaceholder">
-                <button class="fetch-models-button btn-action" data-provider="gemini" data-i18n="fetchModelsButton"></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label data-i18n="modelSelectLabel"></label>
-            <p class="hint">
-                <span data-i18n="geminiModelHint"></span>
-                <a href="https://github.com/licon/llm-translate?tab=readme-ov-file#recommended-models" target="_blank" data-i18n="recommendedModelsLink"></a>
-            </p>
-            <select id="gemini-model-select"></select>
-        </div>
-    </div>
-
-    <!-- Silicon Flow Settings -->
-    <div id="siliconflow-settings" class="tab-content">
-        <div class="form-group">
-            <label for="siliconflow-api-key">
-                <span data-i18n="siliconflowApiKeyLabel"></span>
-                <a href="https://cloud.siliconflow.cn/me/account/ak" target="_blank" data-i18n="getApiKeyLink"></a>
-            </label>
-            <div class="api-key-container">
-                <input type="password" id="siliconflow-api-key" data-i18n-placeholder="siliconflowApiPlaceholder">
-                <button class="fetch-models-button btn-action" data-provider="siliconflow" data-i18n="fetchModelsButton"></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label data-i18n="modelSelectLabel"></label>
-            <p class="hint">
-                <span data-i18n="siliconflowModelHint"></span>
-                <a href="https://github.com/licon/llm-translate?tab=readme-ov-file#recommended-models" target="_blank" data-i18n="recommendedModelsLink"></a>
-            </p>
-            <select id="siliconflow-model-select"></select>
-        </div>
-    </div>
-
-    <!-- OpenRouter Settings -->
-    <div id="openrouter-settings" class="tab-content">
-        <div class="form-group">
-            <label for="openrouter-api-key">
-                <span data-i18n="openrouterApiKeyLabel"></span>
-                <a href="https://openrouter.ai/keys" target="_blank" data-i18n="getApiKeyLink"></a>
-            </label>
-            <div class="api-key-container">
-                <input type="password" id="openrouter-api-key" data-i18n-placeholder="openrouterApiPlaceholder">
-                <button class="fetch-models-button btn-action" data-provider="openrouter" data-i18n="fetchModelsButton"></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label data-i18n="modelSelectLabel"></label>
-            <p class="hint">
-                <span data-i18n="openrouterModelHint"></span>
-                <a href="https://openrouter.ai/models" target="_blank" data-i18n="recommendedModelsLink"></a>
-            </p>
-            <select id="openrouter-model-select"></select>
-        </div>
-    </div>
-
-    <!-- OrcaRouter Settings -->
-    <div id="orcarouter-settings" class="tab-content">
-        <div class="form-group">
-            <label for="orcarouter-api-key">
-                <span data-i18n="orcarouterApiKeyLabel"></span>
-                <a href="https://www.orcarouter.ai/console/token?ref=ref_67f8fda37658a5a8e93f" target="_blank" data-i18n="getApiKeyLink"></a>
-            </label>
-            <div class="api-key-container">
-                <input type="password" id="orcarouter-api-key" data-i18n-placeholder="orcarouterApiPlaceholder">
-                <button class="fetch-models-button btn-action" data-provider="orcarouter" data-i18n="fetchModelsButton"></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="orcarouter-model-select" data-i18n="modelSelectLabel"></label>
-            <p class="hint" data-i18n="orcarouterModelHint"></p>
-            <select id="orcarouter-model-select" disabled><option value="" data-i18n="orcarouterChooseModel"></option></select>
-        </div>
-    </div>
-
-    <!-- Ollama Settings -->
-    <div id="ollama-settings" class="tab-content">
-        <div class="ollama-notice">
-            <p class="cors-hint" data-i18n="ollamaCorsHint"></p>
-        </div>
-        <div class="form-group">
-            <label for="ollama-url">
-                <span data-i18n="ollamaUrlLabel"></span>
-                <a href="https://ollama.com/" target="_blank" data-i18n="getOllamaLink"></a>
-            </label>
-            <div class="api-key-container">
-                <input type="text" id="ollama-url" data-i18n-placeholder="ollamaUrlPlaceholder">
-                <button class="fetch-models-button btn-action" data-provider="ollama" data-i18n="fetchModelsButton"></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label data-i18n="modelSelectLabel"></label>
-            <p class="hint">
-                <span data-i18n="ollamaModelHint"></span>
-                <a href="https://github.com/licon/llm-translate?tab=readme-ov-file#recommended-models" target="_blank" data-i18n="recommendedModelsLink"></a>
-            </p>
-            <select id="ollama-model-select"></select>
-        </div>
-    </div>
-
+    <section id="model-priority"></section>
     <!-- Target Language Settings -->
     <div class="target-language-settings">
         <h2 data-i18n="targetLanguageSettingsTitle"></h2>
@@ -159,5 +42,9 @@
     </div>
 
     <script src="settings.js"></script>
+    <script src="../shared/prompts.js"></script>
+    <script src="learning-settings.js"></script>
+    <script src="../shared/model-catalog.js"></script>
+    <script src="model-priority.js"></script>
 </body>
 </html>
