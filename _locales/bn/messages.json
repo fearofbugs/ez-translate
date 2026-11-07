@@ -587,34 +587,6 @@
         "message": "ইন-পেজ অনুবাদ সক্ষম করুন",
         "description": "ইন-পেজ নির্বাচন অনুবাদ সক্ষম/অক্ষম করার জন্য টগল সুইচের জন্য লেবেল।"
     },
-    "translationPrompt": {
-        "message": "অনুগ্রহ করে <Input> পাঠ্যটি $targetLanguage$ এ অনুবাদ করুন। যদি <Input> পাঠ্যটি ইতিমধ্যে $targetLanguage$ এ থাকে, অনুগ্রহ করে সেটিকে $secondTargetLanguage$ এ অনুবাদ করুন। অনুগ্রহ করে কোনো ব্যাখ্যা, বর্ণনা বা অতিরিক্ত পাঠ্য ছাড়াই সরাসরি অনুবাদ পাঠ্য ফেরত দিন। অনুগ্রহ করে একবারে শুধুমাত্র একটি ভাষা ফেরত দিন।\n\n<input>\n$text$\n</input>",
-        "description": "অনুবাদ এপিআই-এর জন্য প্রম্পট।",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "চীনা"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "ইংরেজি"
-            },
-            "text": {
-                "content": "$3",
-                "example": "হ্যালো, বিশ্ব!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "অনুগ্রহ করে নিম্নলিখিত পাঠ্যটি $targetLanguage$ এ অনুবাদ করুন। অনুগ্রহ করে কোনো ব্যাখ্যা, বর্ণনা বা অতিরিক্ত পাঠ্য ছাড়াই সরাসরি অনুবাদটি ফেরত দিন।",
-        "description": "অনুবাদ এপিআই-এর জন্য সিস্টেম প্রম্পট।",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "চীনা"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "লক্ষ্য ভাষা সেটিংস",
         "description": "লক্ষ্য ভাষা সেটিংস বিভাগের শিরোনাম।"
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "বাতিল",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "দয়া করে ছবিতে লেখাটি পড়ুন এবং এটিকে $targetLanguage$-এ অনুবাদ করুন। যদি লেখাটি ইতিমধ্যে $targetLanguage$-এ থাকে, তাহলে এটিকে $secondTargetLanguage$-এ অনুবাদ করুন। শুধুমাত্র অনুবাদটি ফেরত দিন, কোনো ব্যাখ্যা ছাড়াই।",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "ক্যাপচার > নির্বাচিত এলাকা",

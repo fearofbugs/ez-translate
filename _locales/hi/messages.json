@@ -587,34 +587,6 @@
         "message": "इन-पेज अनुवाद सक्षम करें",
         "description": "इन-पेज चयन अनुवाद को सक्षम/अक्षम करने के लिए टॉगल स्विच के लिए लेबल।"
     },
-    "translationPrompt": {
-        "message": "कृपया <Input> पाठ का $targetLanguage$ में अनुवाद करें। यदि <Input> पाठ पहले से $targetLanguage$ में है, तो कृपया इसे $secondTargetLanguage$ में अनुवाद करें। कृपया बिना किसी स्पष्टीकरण, विवरण या अतिरिक्त पाठ के सीधे अनुवादित पाठ लौटाएं। कृपया एक समय में केवल एक भाषा लौटाएं।\n\n<input>\n$text$\n</input>",
-        "description": "अनुवाद एपीआई के लिए संकेत।",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "चीनी"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "अंग्रेजी"
-            },
-            "text": {
-                "content": "$3",
-                "example": "नमस्ते, दुनिया!"
-            }
-        }
-    },
-    "systemPrompt": {
-        "message": "कृपया निम्नलिखित पाठ का $targetLanguage$ में अनुवाद करें। कृपया अनुवाद सीधे लौटाएं, बिना किसी स्पष्टीकरण, विवरण या अतिरिक्त पाठ के।",
-        "description": "अनुवाद एपीआई के लिए सिस्टम संकेत।",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "चीनी"
-            }
-        }
-    },
     "targetLanguageSettingsTitle": {
         "message": "लक्ष्य भाषा सेटिंग्स",
         "description": "लक्ष्य भाषा सेटिंग्स अनुभाग का शीर्षक।"
@@ -686,20 +658,6 @@
     "cancelButton": {
         "message": "रद्द करें",
         "description": "Cancel button label."
-    },
-    "imageTranslationPrompt": {
-        "message": "कृपया छवि में पाठ पढ़ें और इसे $targetLanguage$ में अनुवाद करें। यदि पाठ पहले से ही $targetLanguage$ में है, तो इसे $secondTargetLanguage$ में अनुवाद करें। केवल अनुवाद वापस करें, बिना किसी स्पष्टीकरण के।",
-        "description": "Prompt for image OCR + translation.",
-        "placeholders": {
-            "targetLanguage": {
-                "content": "$1",
-                "example": "Simplified Chinese"
-            },
-            "secondTargetLanguage": {
-                "content": "$2",
-                "example": "English"
-            }
-        }
     },
     "shortcutCaptureDescription": {
         "message": "कैप्चर > चयनित क्षेत्र",

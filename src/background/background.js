@@ -1,3 +1,4 @@
+importScripts('../shared/prompts.js', 'learning.js', '../shared/model-catalog.js', 'model-queue.js');
 // background.js - Multi-provider background service worker
 
 // --- Initialization & installation ---
@@ -106,6 +107,16 @@ chrome.commands.onCommand.addListener((command) => {
                 });
             }
         });
+    } else if (command === 'toggle-floating-panel') {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: 'toggleFloatingPanel'
+                }).catch((error) => {
+                    console.error('[LLM-Translate] Error sending toggleFloatingPanel:', error);
+                });
+            }
+        });
     }
 });
 
@@ -167,7 +178,7 @@ async function handleContextMenuTranslation(info, tab) {
         const secondaryTargetLanguageName = normalizeLanguageToEnglishName(actualSecondTargetLanguage);
         
         // Send the translation request to the content script
-        chrome.tabs.sendMessage(tab.id, {
+        await chrome.tabs.sendMessage(tab.id, {
             type: 'contextMenuTranslate',
             text: selectedText,
             targetLanguage: primaryTargetLanguageName,
@@ -558,70 +569,10 @@ function normalizeLanguageToEnglishName(langValue) {
 // --- Core translation handling ---
 async function handleTranslation(text, targetLanguage, secondTargetLanguage, sendResponse) {
     try {
-        const { activeProvider } = await chrome.storage.local.get('activeProvider');
-        const provider = activeProvider || 'gemini'; // Default to gemini
-        
-        // Detect source language and determine actual target language
-        const actualTargetLanguage = await determineTargetLanguage(text, targetLanguage, secondTargetLanguage);
-        
-
-
-        let config, apiKey, modelName, ollamaUrl;
-        
-        if (provider === 'ollama') {
-            const urlKey = `${provider}Url`;
-            const modelKey = `${provider}SelectedModel`;
-            config = await chrome.storage.local.get([urlKey, modelKey]);
-            ollamaUrl = config[urlKey];
-            modelName = config[modelKey];
-            
-
-            
-            if (!ollamaUrl) {
-                sendResponse({ error: `Ollama server URL is not set. Please configure the Ollama URL on the settings page.` });
-                chrome.runtime.openOptionsPage();
-                return;
-            }
-            
-            if (!modelName) {
-                sendResponse({ error: `No Ollama model selected. Please choose a model on the settings page.` });
-                chrome.runtime.openOptionsPage();
-                return;
-            }
-        } else {
-            const configKey = `${provider}ApiKey`;
-            const modelKey = `${provider}SelectedModel`;
-            config = await chrome.storage.local.get([configKey, modelKey]);
-
-            apiKey = config[configKey];
-            modelName = config[modelKey];
-
-            if (!apiKey || !modelName) {
-                sendResponse({ error: `API key or model for the current provider (${provider}) is not set.` });
-                chrome.runtime.openOptionsPage();
-                return;
-            }
-        }
-
-        let translation;
-        if (provider === 'gemini') {
-            translation = await callGeminiAPI(text, apiKey, modelName, actualTargetLanguage, secondTargetLanguage);
-        } else if (provider === 'siliconflow') {
-            translation = await callSiliconFlowAPI(text, apiKey, modelName, actualTargetLanguage, secondTargetLanguage);
-        } else if (provider === 'openrouter') {
-            translation = await callOpenRouterAPI(text, apiKey, modelName, actualTargetLanguage, secondTargetLanguage);
-        } else if (provider === 'orcarouter') {
-            translation = await callOrcaRouterAPI(text, apiKey, modelName, actualTargetLanguage, secondTargetLanguage);
-        } else if (provider === 'ollama') {
-            translation = await callOllamaAPI(text, ollamaUrl, modelName, actualTargetLanguage, secondTargetLanguage);
-        } else {
-            throw new Error(`Unknown model provider: ${provider}`);
-        }
-        
-        sendResponse({ translation });
-
+        const settings = await chrome.storage.local.get(null);
+        sendResponse(await translateWithQueue(settings, text, null, { targetLanguage, secondTargetLanguage }));
     } catch (error) {
-        sendResponse({ error: `Translation failed: ${error.message}` });
+        sendResponse({ error: `Translation failed: ${error.message}`, timing: error.timing });
     }
 }
 
@@ -699,33 +650,13 @@ async function handleCaptureAndTranslateImage(rect, sender, sendResponse) {
         const croppedDataUrl = await cropImageDataUrl(dataUrl, rect);
         console.log('[LLM-Translate] cropImageDataUrl success');
 
-        const { activeProvider } = await chrome.storage.local.get('activeProvider');
-        const provider = activeProvider || 'gemini';
-
-        let translation;
-        if (provider === 'gemini') {
-            translation = await visionTranslateGemini(croppedDataUrl);
-        } else if (provider === 'siliconflow') {
-            translation = await visionTranslateOpenAICompatible(croppedDataUrl);
-        } else if (provider === 'openrouter') {
-            translation = await visionTranslateOpenRouter(croppedDataUrl);
-        } else if (provider === 'orcarouter') {
-            translation = await visionTranslateOrcaRouter(croppedDataUrl);
-        } else if (provider === 'ollama') {
-            translation = await visionTranslateOllama(croppedDataUrl);
-        } else {
-            throw new Error(`Unknown model provider: ${provider}`);
-        }
-
-        // Send to content script to show result popover with copy
-        if (sender && sender.tab && sender.tab.id) {
-            console.log('[LLM-Translate] sending showImageTranslationResult');
-            chrome.tabs.sendMessage(sender.tab.id, { type: 'showImageTranslationResult', translation });
-        }
-        sendResponse({ translation });
+        const settings = await chrome.storage.local.get(null);
+        const result = await translateWithQueue(settings, 'Read the text in this image.', croppedDataUrl);
+        if (sender?.tab?.id) await chrome.tabs.sendMessage(sender.tab.id, { type: 'showImageTranslationResult', ...result });
+        sendResponse(result);
     } catch (e) {
         console.error('[LLM-Translate] handleCaptureAndTranslateImage failed:', e);
-        sendResponse({ error: e.message });
+        sendResponse({ error: e.message, timing: e.timing });
     }
 }
 
@@ -755,13 +686,11 @@ async function visionTranslateGemini(imageDataUrl) {
     const { geminiApiKey, geminiSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['geminiApiKey', 'geminiSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = geminiApiKey; const modelName = geminiSelectedModel;
     if (!apiKey || !modelName) throw new Error('Gemini API or model is not configured');
-    const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
-    const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
-    const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
+    const prompt = 'Read the text in the attached image.';
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
     const parts = [{ text: prompt }, { inline_data: { mime_type: 'image/png', data: imageDataUrl.split(',')[1] } }];
-    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) });
+    const resp = await learningFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) });
     if (!resp.ok) throw new Error('Gemini Vision request failed');
     const data = await resp.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
@@ -771,9 +700,7 @@ async function visionTranslateOpenAICompatible(imageDataUrl) {
     const { siliconflowApiKey, siliconflowSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['siliconflowApiKey', 'siliconflowSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = siliconflowApiKey; const modelName = siliconflowSelectedModel;
     if (!apiKey || !modelName) throw new Error('SiliconFlow API or model is not configured');
-    const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
-    const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
-    const userPrompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
+    const userPrompt = 'Read the text in the attached image.';
 
     const url = 'https://api.siliconflow.cn/v1/chat/completions';
     const messages = [
@@ -782,7 +709,7 @@ async function visionTranslateOpenAICompatible(imageDataUrl) {
             { type: 'image_url', image_url: { url: imageDataUrl } }
         ]}
     ];
-    const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
+    const resp = await learningFetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
     if (!resp.ok) throw new Error('SiliconFlow Vision request failed');
     const data = await resp.json();
     return data.choices?.[0]?.message?.content?.trim() || '';
@@ -792,9 +719,7 @@ async function visionTranslateOpenRouter(imageDataUrl) {
     const { openrouterApiKey, openrouterSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['openrouterApiKey', 'openrouterSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const apiKey = openrouterApiKey; const modelName = openrouterSelectedModel;
     if (!apiKey || !modelName) throw new Error('OpenRouter API or model is not configured');
-    const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
-    const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
-    const userPrompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
+    const userPrompt = 'Read the text in the attached image.';
 
     const url = 'https://openrouter.ai/api/v1/chat/completions';
     const messages = [
@@ -803,18 +728,14 @@ async function visionTranslateOpenRouter(imageDataUrl) {
             { type: 'image_url', image_url: { url: imageDataUrl } }
         ]}
     ];
-    const resp = await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://github.com/licon/llm-translate', 'X-Title': 'LLM Translate Extension' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
-    if (!resp.ok) throw new Error('OpenRouter Vision request failed');
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content?.trim() || '';
+    const resp = await learningFetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://github.com/licon/llm-translate', 'X-Title': 'LLM Translate Extension' }, body: JSON.stringify({ model: modelName, messages, max_tokens: 2048, temperature: 0.2 }) });
+    return parseOpenRouterResponse(resp);
 }
 
 async function visionTranslateOrcaRouter(imageDataUrl) {
     const { orcarouterApiKey, orcarouterSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['orcarouterApiKey', 'orcarouterSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     if (!orcarouterApiKey || !orcarouterSelectedModel) throw new Error('OrcaRouter API or model is not configured');
-    const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
-    const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
-    const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
+    const prompt = 'Read the text in the attached image.';
     return callOrcaRouterChat(orcarouterApiKey, orcarouterSelectedModel, [
         { role: 'user', content: [
             { type: 'text', text: prompt },
@@ -827,20 +748,14 @@ async function visionTranslateOllama(imageDataUrl) {
     const { ollamaUrl, ollamaSelectedModel, targetLanguage, secondTargetLanguage } = await chrome.storage.local.get(['ollamaUrl', 'ollamaSelectedModel', 'targetLanguage', 'secondTargetLanguage']);
     const url = ollamaUrl; const modelName = ollamaSelectedModel;
     if (!url || !modelName) throw new Error('Ollama URL or model is not configured');
-    const target = mapLangKeyToEnName(targetLanguage || 'langSimplifiedChinese');
-    const second = mapLangKeyToEnName(secondTargetLanguage || 'langEnglish');
-    const prompt = chrome.i18n.getMessage('imageTranslationPrompt', [target, second]);
+    const prompt = 'Read the text in the attached image.';
     // Note: Many Ollama models don't support vision; this is a best-effort text prompt
-    const resp = await fetch(`${url}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, prompt: `${prompt}\n[Image as data URL]\n${imageDataUrl}`, stream: false }) });
+    const resp = await learningFetch(`${url}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName, prompt, images: [imageDataUrl.split(',')[1]], stream: false }) });
     if (!resp.ok) throw new Error('Ollama Vision request failed');
     const data = await resp.json();
     return data.response?.trim() || '';
 }
 
-function mapLangKeyToEnName(key) {
-    const map = { 'langEnglish':'English','langSimplifiedChinese':'Simplified Chinese','langTraditionalChinese':'Traditional Chinese' };
-    return map[key] || 'English';
-}
 
 // --- API call implementations ---
 
@@ -849,9 +764,9 @@ function mapLangKeyToEnName(key) {
  */
 async function callGeminiAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-    const prompt = chrome.i18n.getMessage('translationPrompt', [targetLanguage, secondTargetLanguage, text]);
+    const prompt = text;
     
-    const response = await fetch(url, {
+    const response = await learningFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -872,9 +787,9 @@ async function callGeminiAPI(text, apiKey, modelName, targetLanguage, secondTarg
  */
 async function callSiliconFlowAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = 'https://api.siliconflow.cn/v1/chat/completions';
-    const userPrompt = chrome.i18n.getMessage('translationPrompt', [targetLanguage, secondTargetLanguage, text]);
+    const userPrompt = text;
 
-    const response = await fetch(url, {
+    const response = await learningFetch(url, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -903,9 +818,9 @@ async function callSiliconFlowAPI(text, apiKey, modelName, targetLanguage, secon
  */
 async function callOpenRouterAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
     const url = 'https://openrouter.ai/api/v1/chat/completions';
-    const userPrompt = chrome.i18n.getMessage('translationPrompt', [targetLanguage, secondTargetLanguage, text]);
+    const userPrompt = text;
 
-    const response = await fetch(url, {
+    const response = await learningFetch(url, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${apiKey}`,
@@ -923,21 +838,34 @@ async function callOpenRouterAPI(text, apiKey, modelName, targetLanguage, second
         }),
     });
 
-    if (!response.ok) {
-        const errorBody = await response.json();
-        throw new Error(errorBody.error?.message || `API request failed`);
+    return parseOpenRouterResponse(response);
+}
+
+async function parseOpenRouterResponse(response) {
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.error) {
+        const detail = data?.error?.message;
+        const hints = {
+            401: 'Check your OpenRouter API key in Settings.',
+            402: 'Your OpenRouter account has insufficient credits.',
+            429: 'OpenRouter rate limit reached. Retry later or configure a backup model.',
+        };
+        throw new Error(`OpenRouter HTTP ${response.status}: ${detail || hints[response.status] || 'Request failed. Try another model.'}`);
     }
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== 'string' || !content.trim()) {
+        throw new Error('OpenRouter returned no translation. Try another model.');
+    }
+    return content.trim();
 }
 
 async function callOrcaRouterAPI(text, apiKey, modelName, targetLanguage, secondTargetLanguage) {
-    const prompt = chrome.i18n.getMessage('translationPrompt', [targetLanguage, secondTargetLanguage, text]);
+    const prompt = text;
     return callOrcaRouterChat(apiKey, modelName, [{ role: 'user', content: prompt }]);
 }
 
 async function callOrcaRouterChat(apiKey, modelName, messages) {
-    const response = await fetch('https://api.orcarouter.ai/v1/chat/completions', {
+    const response = await learningFetch('https://api.orcarouter.ai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: modelName, messages })
@@ -959,9 +887,9 @@ async function callOrcaRouterChat(apiKey, modelName, messages) {
  */
 async function callOllamaAPI(text, ollamaUrl, modelName, targetLanguage, secondTargetLanguage) {
     const url = `${ollamaUrl}/api/generate`;
-    const prompt = chrome.i18n.getMessage('translationPrompt', [targetLanguage, secondTargetLanguage, text]);
+    const prompt = text;
     
-    const response = await fetch(url, {
+    const response = await learningFetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
